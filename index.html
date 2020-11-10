@@ -44,6 +44,11 @@
 </section>
 
 <section>
+    <h2>✍️ Written up here:</h2>
+    <img src="img/post.png" class="r-stretch">
+</section>
+
+<section>
     <h2>🤷‍♂️ What does it do?</h2>
     <p>View:</p>
     <pre><code class="language-python">def contact(request):
@@ -89,21 +94,124 @@
         self.assertEqual(len(mail.outbox), 1)</code></pre>
 </section>
 
-<!--
-* ticket - open for a while, some snippets
-* tried to come up with design
-* made it into a package so that I could recommend it in the book, and try out with some projects
-* maintain 23 packages
-* I copy-paste one project to the next so I get uniform setup
-* Toolchain:
-    GitHub Actions
-    pre-commit - flake8, isort, black
-    pytest
-    tox
-    pip-compile
-    release with setuptools via new python-build - using setup.cfg setup so no data in setup.py
-    check-manifest
--->
+<section>
+    <h2>🤔 Why?</h2>
+    <img src="img/ticket.png" class="r-stretch">
+</section>
+
+<section>
+    <h2>🤔 Why?</h2>
+    <img src="img/pr.png" class="r-stretch">
+</section>
+
+<section>
+    <h2>🤔 Why?</h2>
+    <img src="img/pr.png" class="r-stretch">
+</section>
+
+<section>
+    <h2>📦 What is the package?</h2>
+    <ul>
+        <li><code>TestCaseMixin</code> containing <code>captureOnCommitCallbacks()</code></li>
+        <li>23 lines of code, 86 lines of tests.</li>
+        <li>Python 3.5 to 3.9 support.</li>
+        <li>Django 2.2 to 3.1 support.</li>
+    </ul>
+</section>
+
+<section>
+    <h2>🔨 Tools: setuptools</h2>
+    <p>setup.cfg</p>
+    <pre><code class="language-ini">[metadata]
+name = django-capture-on-commit-callbacks
+version = 1.2.0
+description = Capture and make assertions on transaction.on_commit() callbacks.
+long_description = file: README.rst
+long_description_content_type = text/x-rst</code></pre>
+</section>
+
+<section>
+    <h2>🔨 Tools: pytest</h2>
+    <p>With pytest-django and pytest-cov (coverage).</p>
+    <p>pytest.ini</p>
+    <pre><code class="language-ini">[pytest]
+addopts = --cov django_capture_on_commit_callbacks
+          --cov-report term-missing:skip-covered
+          --cov-fail-under 100
+          --cov-config setup.cfg
+          --ds=tests.settings
+django_find_project = false</code></pre>
+</section>
+
+<section>
+    <h2>🔨 Tools: tox</h2>
+    <p>tox.ini</p>
+    <pre><code class="language-ini">[tox]
+isolated_build = True
+envlist =
+    py35-django{22}
+    py36-django{22,30,31}
+    py37-django{22,30,31}
+    py38-django{22,30,31}
+    py39-codestyle
+    py39-django{22,30,31}
+
+[testenv]
+commands = python -W error::DeprecationWarning -W error::PendingDeprecationWarning -m pytest {posargs:tests}</code></pre>
+</section>
+
+<section>
+    <h2>🔨 Tools: pre-commit</h2>
+    <p>.pre-commit-config.yaml</p>
+    <pre><code class="language-yaml">repos:
+- repo: local
+  hooks:
+  - id: black
+    name: black
+    entry: .tox/py39-codestyle/bin/black
+    language: system
+    types: [python]
+  - id: check-manifest
+    name: check-manifest
+    entry: check-manifest
+    language: system
+    pass_filenames: false
+    files: ^MANIFEST\.in$
+  - id: flake8
+    name: flake8
+    entry: .tox/py39-codestyle/bin/flake8 --config=setup.cfg
+    language: system
+    types: [python]
+  - id: isort
+    name: isort
+    entry: .tox/py39-codestyle/bin/isort
+    language: system
+    types: [python]</code></pre>
+</section>
+
+<section>
+    <h2>🔨 Tools: GitHub Actions</h2>
+    <p>.github/workflow/main.yml</p>
+    <pre><code class="language-yaml">jobs:
+  tests:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-18.04
+
+    strategy:
+      matrix:
+        python-version:
+        - 3.5
+        - 3.6
+        - 3.7
+        - 3.8
+        - 3.9</code></pre>
+</section>
+
+<section>
+    <h2>🔨 Tools</h2>
+    <img src="img/badges.png" class="r-stretch">
+</section>
+
 
 <section>
     <h1>Thank you! 🤗</h1>
