@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Creating django-capture-on-commit-callbacks</title>
+
+        <link rel="stylesheet" href="dist/reset.css">
+        <link rel="stylesheet" href="dist/reveal.css">
+        <link rel="stylesheet" href="dist/theme/django.css" id="theme">
+
+        <!-- <link rel="stylesheet" href="css/theme/django.css"> -->
+
+        <!-- Theme used for syntax highlighted code -->
+        <link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName('head')[0].appendChild(link);
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+
+<section>
+    <h1>Creating django-capture-on-commit-callbacks</h1>
+    <h2>Adam Johnson</h2>
+</section>
+
+<section>
+    <h2>🔨 This package</h2>
+    <img src="img/pypi-page.png" class="r-stretch">
+</section>
+
+<section>
+    <h2>🐃🪒 “Yak shave” for my book:</h2>
+    <img src="img/gumroad.png" class="r-stretch">
+</section>
+
+<section>
+    <h2>🤷‍♂️ What does it do?</h2>
+    <p>View:</p>
+    <pre><code class="language-python">def contact(request):
+    if request.method == "POST":
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            @transaction.on_commit
+            def send_email():
+                send_email(form.data)
+            return redirect("/contact")
+    ...</code></pre>
+</section>
+
+<section>
+    <h2>🤷‍♂️ What does it do?</h2>
+    <p>Tests without package:</p>
+    <pre><code class="language-python">class ContactTests(TransactionTestCase):
+    def test_post(self):
+        response = self.client.post(
+            "/contact/",
+            {"message": "I like your site"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(callbacks), 1)
+        self.assertEqual(len(mail.outbox), 1)</code></pre>
+</section>
+
+<section>
+    <h2>🤷‍♂️ What does it do?</h2>
+    <p>Tests with package:</p>
+    <pre><code class="language-python">class ContactTests(TestCase):
+    def test_post(self):
+        with self.captureOnCommitCallbacks(execute=True) \
+                as callbacks:
+            response = self.client.post(
+                "/contact/",
+                {"message": "I like your site"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(callbacks), 1)
+        self.assertEqual(len(mail.outbox), 1)</code></pre>
+</section>
+
+<!--
+* ticket - open for a while, some snippets
+* tried to come up with design
+* made it into a package so that I could recommend it in the book, and try out with some projects
+* maintain 23 packages
+* I copy-paste one project to the next so I get uniform setup
+* Toolchain:
+    GitHub Actions
+    pre-commit - flake8, isort, black
+    pytest
+    tox
+    pip-compile
+    release with setuptools via new python-build - using setup.cfg setup so no data in setup.py
+    check-manifest
+-->
+
+<section>
+    <h1>Thank you! 🤗</h1>
+    <ul>
+        <li>Adam Johnson</li>
+        <li>@adamchainz on GitHub &amp; Twitter</li>
+        <li>me@adamj.eu</li>
+        <li><a href="https://github.com/adamchainz/talk-what-happens-when-you-run-manage.py-test">github.com/adamchainz/talk-what-happens-when-you-run-manage.py-test</a></li>
+    </ul>
+</section>
+
+            </div>
+        </div>
+
+        <script src="dist/reveal.js"></script>
+        <script src="plugin/highlight/highlight.js"></script>
+        <script>
+            // More info about initialization & config:
+            // - https://revealjs.com/initialization/
+            // - https://revealjs.com/config/
+            Reveal.initialize({
+                hash: true,
+
+                // Learn about plugins: https://revealjs.com/plugins/
+                plugins: [ RevealHighlight ]
+            });
+        </script>
+    </body>
+</html>
